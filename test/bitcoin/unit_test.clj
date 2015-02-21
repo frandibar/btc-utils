@@ -20,6 +20,12 @@
   ;;          (btc 1.234))))
   ;; )
 
+  (testing "test-constructors"
+    (is (= (btc 1)
+           (sat 100000000)
+           (bit 1000000)))
+    )
+
   (testing "test-eq"
     ;; self.assertEqual(amount.BitcoinAmount(10), amount.BitcoinAmount(10))
     (is (= (btc 10)

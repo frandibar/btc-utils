@@ -6,9 +6,6 @@
 (def ^:const SAT 100000000)
 (def ^:const SAT_DEC 8)
 
-(def ^:const BIT 1000000)
-(def ^:const BIT_DEC 6)
-
 (defprotocol BTCAmount
   (to-sat [this])
   (to-btc [this])
@@ -39,7 +36,7 @@
     (with-precision SAT_DEC (/ (:amount this) SAT)))
 
   (to-bit [this]
-    (with-precision BIT_DEC (/ (:amount this) BIT)))
+    (with-precision SAT_DEC (/ (:amount this) 100)))
 
   (to-sat [this]
    (:amount this))
@@ -61,7 +58,7 @@
   "Constructor for Btc."
   [amount]
   {:pre [(number? amount)]}
-  (Btc. (bigint (with-precision BIT_DEC (* BIT amount)))))
+  (Btc. (bigint (with-precision SAT_DEC (* 100 amount)))))
 
 (defmulti btc+ (fn [head & tail] (type head)))
 (defmethod btc+ Btc
