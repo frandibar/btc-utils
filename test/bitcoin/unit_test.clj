@@ -38,12 +38,12 @@
 
   (testing "test-add"
     ;; self.assertEqual(amount.BitcoinAmount(10) + amount.BitcoinAmount(0), amount.BitcoinAmount(10))
-    (is (= (btc+ (btc 10)
+    (is (= (+ (btc 10)
                  (btc 0))
            (btc 10)))
 
     ;; self.assertEqual(amount.BitcoinAmount(10) + amount.BitcoinAmount(0.1), amount.BitcoinAmount(10.1))
-    (is (= (btc+ (btc 10)
+    (is (= (+ (btc 10)
                  (btc 0.1))
            (btc 10.1)))
 
@@ -51,14 +51,14 @@
     ;;     amount.BitcoinAmount(0.1) + amount.BitcoinAmount(0.1) + amount.BitcoinAmount(0.1),
     ;;     amount.BitcoinAmount(0.3)
     ;; )
-    (is (= (btc+ (btc 0.1)
+    (is (= (+ (btc 0.1)
                  (btc 0.1)
                  (btc 0.1))
            (btc 0.3)))
     )
 
     ;; self.assertEqual(amount.BitcoinAmount(0.1) + amount.BitcoinAmount(0.1 + 0.1 + 0.1), amount.BitcoinAmount(0.4))
-    (is (= (btc+ (btc 0.1)
+    (is (= (+ (btc 0.1)
                  (btc (+ 0.1 0.1 0.1)))
            (btc 0.4)))
 
@@ -66,12 +66,12 @@
     ;;     amount.BitcoinAmount(0.000000001) + amount.BitcoinAmount(0.000000001),
     ;;     amount.BitcoinAmount(0)
     ;; )
-    (is (= (btc+ (btc 0.000000001)
+    (is (= (+ (btc 0.000000001)
                  (btc 0.000000001))
            (btc 0)))
 
     ;; self.assertEqual((amount.BitcoinAmount(20999999.99999999) + amount.BitcoinAmount(0.00000001)).btc(), 21000000)
-    (is (= (to-btc (btc+ (btc 20999999.99999999)
+    (is (= (to-btc (+ (btc 20999999.99999999)
                          (btc 0.00000001)))
            21000000))
 
@@ -79,7 +79,7 @@
     ;;     (amount.BitcoinAmount(20999999.99999999) + amount.BitcoinAmount(0.00000001)).satoshis(),
     ;;     2100000000000000
     ;; )
-    (is (= (to-sat (btc+ (btc 20999999.99999999)
+    (is (= (to-sat (+ (btc 20999999.99999999)
                          (btc 0.00000001)))
            2100000000000000))
 

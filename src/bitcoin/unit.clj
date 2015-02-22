@@ -12,24 +12,6 @@
   (to-bit [this])
   )
 
-(declare sat)
-
-;; These functions aren't defined in the protocol because functions
-;; declared in protocols don't support variadic args.
-
-;; (defn btc+
-;;   [head & tail]
-;;   (sat (- (:amount head) (apply + (map :amount tail)))))
-
-(defn btc-
-  [head & tail]
-  (sat (- (:amount head) (apply + (map :amount tail)))))
-
-(defn btc=
-  [head & tail]
-  (apply = (conj (map :amount tail)
-                 (:amount head))))
-
 (defrecord Btc [amount]
   BTCAmount
   (to-btc [this]
@@ -43,31 +25,55 @@
   )
 
 (defn btc
-  "Constructor for Btc."
+  "Constructor for Btc, in btc units."
   [amount]
   {:pre [(number? amount)]}
   (Btc. (bigint (with-precision SAT_DEC (* SAT amount)))))
 
 (defn sat
-  "Constructor for Btc."
+  "Constructor for Btc, in satoshi units."
   [amount]
   {:pre [(number? amount)]}
   (Btc. (bigint (with-precision SAT_DEC amount))))
 
 (defn bit
-  "Constructor for Btc."
+  "Constructor for Btc, in bits units."
   [amount]
   {:pre [(number? amount)]}
   (Btc. (bigint (with-precision SAT_DEC (* 100 amount)))))
 
-(defmulti btc+ (fn [head & tail] (type head)))
-(defmethod btc+ Btc
+(defmulti + (fn [head & tail] (type head)))
+(defmethod + Btc
   [head & tail]
   (sat (apply clojure.core/+ (conj (map :amount tail)
                                    (:amount head)))))
+(defmethod + :default
+  [head & tail]
+  (apply clojure.core/+ (conj tail head)))
 
-;; TODO
-;; Why not have a (btc n), (sat n), (bits n) ?
+
+(defmulti - (fn [head & tail] (type head)))
+(defmethod - Btc
+  [head & tail]
+  (sat (clojure.core/- (:amount head)
+                       (apply clojure.core/+ (map :amount tail)))))
+
+(defmethod - :default
+  [head & tail]
+  (clojure.core/- head
+                  (apply clojure.core/+ tail)))
+
+
+(defmulti = (fn [head & tail] (type head)))
+(defmethod = Btc
+  [head & tail]
+  (apply clojure.core/+ (conj (map :amount tail)
+                              (:amount head))))
+
+(defmethod = :default
+  [head & tail]
+  (apply clojure.core/= (conj (map :amount tail)
+                              (:amount head))))
 
 ;; Sample usage:
 ;; (use 'bitcoin.unit)
