@@ -1,19 +1,18 @@
 (ns bitcoin.unit
-  ;; (require '[clojure.core :as core])
-  ;; (use '(clojure [core :only (+) :as core]))
+  (:refer-clojure :exclude [+ - = > >= < <=])
   )
 
 (def ^:const SAT 100000000)
 (def ^:const SAT_DEC 8)
 
-(defprotocol BTCAmount
-  (to-sat [this])
+(defprotocol BTCUnits
   (to-btc [this])
   (to-bit [this])
+  (to-sat [this])
   )
 
 (defrecord Btc [amount]
-  BTCAmount
+  BTCUnits
   (to-btc [this]
     (with-precision SAT_DEC (/ (:amount this) SAT)))
 
@@ -24,17 +23,13 @@
    (:amount this))
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn btc
   "Constructor for Btc, in btc units."
   [amount]
   {:pre [(number? amount)]}
   (Btc. (bigint (with-precision SAT_DEC (* SAT amount)))))
-
-(defn sat
-  "Constructor for Btc, in satoshi units."
-  [amount]
-  {:pre [(number? amount)]}
-  (Btc. (bigint (with-precision SAT_DEC amount))))
 
 (defn bit
   "Constructor for Btc, in bits units."
@@ -42,42 +37,55 @@
   {:pre [(number? amount)]}
   (Btc. (bigint (with-precision SAT_DEC (* 100 amount)))))
 
-(defmulti + (fn [head & tail] (type head)))
-(defmethod + Btc
-  [head & tail]
-  (sat (apply clojure.core/+ (conj (map :amount tail)
-                                   (:amount head)))))
-(defmethod + :default
-  [head & tail]
-  (apply clojure.core/+ (conj tail head)))
+(defn sat
+  "Constructor for Btc, in satoshi units."
+  [amount]
+  {:pre [(number? amount)]}
+  (Btc. (bigint (with-precision SAT_DEC amount))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Implement operators
 
-(defmulti - (fn [head & tail] (type head)))
-(defmethod - Btc
-  [head & tail]
-  (sat (clojure.core/- (:amount head)
-                       (apply clojure.core/+ (map :amount tail)))))
+(defmacro btc-operator
+  [new-op overriden-op result-op]
+  (let [h1 (gensym)
+        h2 (gensym)
+        h3 (gensym)
+        t1 (gensym)
+        t2 (gensym)
+        t3 (gensym)]
+    `(list
+      (defmulti ~new-op (fn [~h1 & ~t1] (type ~h1)))
+      (defmethod ~new-op Btc
+        [~h2 & ~t2]
+        (~result-op (apply ~overriden-op (map :amount (cons ~h2 ~t2)))))
+      (defmethod ~new-op :default
+        [~h3 & ~t3]
+        (apply ~overriden-op (cons ~h3 ~t3)))
+      ))
+  )
 
-(defmethod - :default
-  [head & tail]
-  (clojure.core/- head
-                  (apply clojure.core/+ tail)))
+(btc-operator + clojure.core/+ sat)
+(btc-operator - clojure.core/- sat)
+(btc-operator = clojure.core/= identity)
+(btc-operator > clojure.core/> identity)
+(btc-operator >= clojure.core/>= identity)
+(btc-operator < clojure.core/< identity)
+(btc-operator <= clojure.core/<= identity)
 
+;; i.e. This macro expands as follows for +:
+;; (defmulti + (fn [head & tail] (type head)))
+;; (defmethod + Btc
+;;   [head & tail]
+;;   (sat (apply clojure.core/+ (map :amount (cons head tail)))))
+;; (defmethod + :default
+;;   [head & tail]
+;;   (apply clojure.core/+ (cons head tail)))
 
-(defmulti = (fn [head & tail] (type head)))
-(defmethod = Btc
-  [head & tail]
-  (apply clojure.core/+ (conj (map :amount tail)
-                              (:amount head))))
-
-(defmethod = :default
-  [head & tail]
-  (apply clojure.core/= (conj (map :amount tail)
-                              (:amount head))))
 
 ;; Sample usage:
 ;; (use 'bitcoin.unit)
 ;; (to-sat (btc 2))
 ;= 200000000
-;; (btc-eq (btc 1) (sat 10000000))
+;; (= (btc 1) (sat 10000000))
 ;= true

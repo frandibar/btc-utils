@@ -1,24 +1,14 @@
 (ns bitcoin.unit-test
+  (:refer-clojure :exclude [+ - = > >= < <=])
   (:require [clojure.test :refer :all]
             [bitcoin.unit :refer :all]))
 
-(deftest btc-test
-  ;; (testing "test-constructor-defaults"
-  ;;   (is (= (btc 1 'btc)
-  ;;          (btc 1)))
-  ;;   (is (= (btc 100000000 'sat)
-  ;;          (btc 1)))
-  ;;   )
+(deftest unit-test
 
-  ;; (testing "test-conversion"
-  ;;   (is (= (to-sat (btc 1.234))
-  ;;          (to-sat (btc 123400000 'sat)))))
-
-  ;; (testing "test-btc-"
-  ;;   (is (= (btc- (btc 3.579)
-  ;;                (btc 2.345))
-  ;;          (btc 1.234))))
-  ;; )
+  (testing "test-conversion"
+    (is (= (to-sat (btc 1.234))
+           (to-sat (sat 123400000))))
+  )
 
   (testing "test-constructors"
     (is (= (btc 1)
