@@ -1,5 +1,5 @@
 (ns bitcoin.transaction-test
-  (:refer-clojure :exclude [+ - = > >= < <=])
+  (:refer-clojure :exclude [+ - = not= > >= < <=])
   (:require [clojure.test :refer :all]
             [bitcoin.unit :refer :all]
             [bitcoin.transaction :refer :all]))

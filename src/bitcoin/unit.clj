@@ -1,5 +1,5 @@
 (ns bitcoin.unit
-  (:refer-clojure :exclude [+ - = > >= < <=])
+  (:refer-clojure :exclude [+ - = not= > >= < <=])
   )
 
 (def ^:const SAT 100000000)
@@ -68,6 +68,7 @@
 (btc-operator + clojure.core/+ sat)
 (btc-operator - clojure.core/- sat)
 (btc-operator = clojure.core/= identity)
+(btc-operator not= clojure.core/not= identity)
 (btc-operator > clojure.core/> identity)
 (btc-operator >= clojure.core/>= identity)
 (btc-operator < clojure.core/< identity)
